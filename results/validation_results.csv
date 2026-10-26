@@ -1,0 +1,31 @@
+id,kind,expected,answer,correct,route,reason,avg_logprob,seconds
+1,fact,Canberra,Canberra.,True,local,confident,-0.0746,1.54
+2,fact,Ottawa,Ottawa.,True,local,confident,-0.0858,1.43
+3,fact,Pacific,The Pacific Ocean.,True,local,confident,-0.1133,1.59
+4,fact,Orwell,George Orwell.,True,local,confident,-0.0636,1.48
+5,fact,1969,1969.,True,local,confident,-0.1238,1.54
+6,fact,Cairo,Cairo.,True,local,confident,-0.0825,1.37
+7,fact,Fleming,Alexander Fleming.,True,local,confident,-0.1687,1.34
+8,fact,Curie,Marie Curie.,True,local,confident,-0.109,1.89
+9,fact,1453,1453.,True,local,confident,-0.0377,1.64
+10,fact,Tungsten,Tungsten.,True,local,confident,-0.122,1.74
+11,fact,206,206,True,local,confident,-0.1897,1.13
+12,fact,Wellington,Wellington.,True,local,confident,-0.0705,1.53
+13,fact,1923,1923.,True,local,confident,-0.0765,1.54
+14,fact,Vivaldi,Antonio Vivaldi.,True,local,confident,-0.048,2.05
+15,math_easy,225,225,True,local,confident,-0.0209,1.12
+16,math_easy,163,163,True,local,confident,-0.0079,1.13
+17,math_easy,72,72,True,local,confident,-0.0169,1.14
+18,math_hard,3648,3696,False,cloud,low confidence,-0.386,1.31
+19,math_hard,7245,7295,False,cloud,low confidence,-0.2469,1.23
+20,math_hard,13332,3322,False,cloud,low confidence,-0.2064,1.23
+21,math_hard,68376,69416,False,cloud,low confidence,-0.9659,1.23
+22,math_hard,56088,56088,True,cloud,low confidence,-0.2739,1.43
+23,letters,4,3,False,local,confident,-0.1697,1.44
+24,letters,8,8,True,local,confident,-0.0514,1.12
+25,letters,3,3,True,local,confident,-0.1644,1.23
+26,letters,5,4,False,local,confident,-0.1743,1.11
+27,logic,37,29,False,cloud,low confidence,-0.7662,1.24
+28,logic,71,47,False,cloud,low confidence,-0.2561,1.04
+29,logic,53,53,True,local,confident,-0.1403,1.1
+30,logic,No,No.,True,cloud,low confidence,-0.2024,1.44
