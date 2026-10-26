@@ -50,9 +50,55 @@ def ask_local(question):
     }
 
 
+CLOUD_URL = "https://api.meta.ai/v1/responses"
+CLOUD_MODEL = "muse-spark-1.3"
+CLOUD_EFFORT = "minimal"
+CLOUD_MAX_OUTPUT_TOKENS = 1500
+CLOUD_LOG_PATH = "results/cloud_calls.csv"
+CLOUD_LOG_FIELDS = ["timestamp", "status", "input_tokens", "output_tokens",
+                    "reasoning_tokens", "seconds", "question"]
+
+
 def ask_cloud(question):
-    # Placeholder: the cloud model is not connected yet.
-    return None
+    key = os.environ.get("MODEL_API_KEY")
+    if not key or os.environ.get("ALLOW_CLOUD") != "1":
+        return None  # cloud is off unless both the key and ALLOW_CLOUD=1 are set
+    body = {
+        "model": CLOUD_MODEL,
+        "input": question + SUFFIX,
+        "max_output_tokens": CLOUD_MAX_OUTPUT_TOKENS,
+        "reasoning": {"effort": CLOUD_EFFORT},
+    }
+    start = time.time()
+    r = requests.post(CLOUD_URL, json=body,
+                      headers={"Authorization": "Bearer " + key}, timeout=300)
+    seconds = time.time() - start
+    r.raise_for_status()
+    data = r.json()
+    text = ""
+    for item in data.get("output", []):
+        if item.get("type") == "message":
+            for part in item.get("content", []):
+                if part.get("type") == "output_text":
+                    text += part.get("text", "")
+    usage = data.get("usage", {})
+    new_file = not os.path.exists(CLOUD_LOG_PATH)
+    with open(CLOUD_LOG_PATH, "a", newline="", encoding="utf-8") as f:
+        writer = csv.DictWriter(f, fieldnames=CLOUD_LOG_FIELDS)
+        if new_file:
+            writer.writeheader()
+        writer.writerow({
+            "timestamp": time.strftime("%Y-%m-%d %H:%M:%S"),
+            "status": data.get("status"),
+            "input_tokens": usage.get("input_tokens"),
+            "output_tokens": usage.get("output_tokens"),
+            "reasoning_tokens": usage.get("output_tokens_details", {}).get("reasoning_tokens"),
+            "seconds": round(seconds, 2),
+            "question": question,
+        })
+    if not text.strip():
+        return None  # no visible answer, e.g. the cap was used up by reasoning
+    return {"answer": text.strip()}
 
 
 LETTER_QUESTION = re.compile(
@@ -95,9 +141,11 @@ def route(question):
     if route_taken == "cloud":
         cloud = ask_cloud(question)
         if cloud is None:
-            note = "cloud not connected yet, showing local answer"
+            note = "cloud off or no answer, showing local answer"
         else:
-            answer = cloud
+            answer = cloud["answer"]
+
+            
     seconds = time.time() - start
     log({
         "timestamp": time.strftime("%Y-%m-%d %H:%M:%S"),
