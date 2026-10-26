@@ -2,7 +2,7 @@ import csv
 import os
 import sys
 import time
-
+import re
 import requests
 
 LOCAL_URL = "http://192.168.1.14:8080/v1/chat/completions"
@@ -55,9 +55,17 @@ def ask_cloud(question):
     return None
 
 
+LETTER_QUESTION = re.compile(
+    r"\b(letter|letters|vowel|vowels|consonant|consonants|"
+    r"spell|spelled|spelling|character|characters)\b"
+)
+
+
 def decide(question, local):
     if len(question) > MAX_QUESTION_CHARS:
         return "cloud", "question too long"
+    if LETTER_QUESTION.search(question.lower()):
+        return "cloud", "letter question"
     answer = local["answer"].lower()
     if not answer:
         return "cloud", "empty answer"
