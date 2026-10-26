@@ -3,6 +3,20 @@
 An edge-first AI assistant on a Raspberry Pi 5. A small quantized Llama model answers locally, and only the requests it is unsure about are escalated to a cloud model.
 
 Built for the Meta Global AI Developer Hackathon (Oct 26 – Nov 4, 2026). Work in progress.
+## Before the hackathon vs during the hackathon
+
+Kickoff was Oct 26, 2026 at 12:00 PM ET. The git tag `pre-hackathon` marks the last commit made before kickoff.
+
+**Before kickoff (prior work, everything up to the tag):**
+- Raspberry Pi 5 setup: OS, SSH, llama.cpp build, Llama 3.2 3B Q4_K_M speed measurements
+- Design note v1 (docs/design.md)
+- A first router script (router.py) with a confidence threshold, refusal phrases and a rule for letter questions. The cloud call was a placeholder that returned nothing.
+- A local evaluation script and two held-out question sets with results
+
+**During the hackathon (commits after the tag):**
+- Everything else. Nothing that talks to Meta Model API existed before kickoff.
+
+To see exactly what was added during the event: `git log pre-hackathon..main --oneline`, or [compare the tag with main](https://github.com/MooreHaww/pi-edge-router/compare/pre-hackathon...main).
 
 ## Why this exists
 
