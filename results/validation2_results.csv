@@ -1,0 +1,31 @@
+id,kind,expected,answer,correct,route,reason,avg_logprob,seconds
+1,letters_kw,3,2,False,cloud,letter question,-0.2898,1.38
+2,letters_kw,9,10,False,cloud,letter question,-0.3436,1.02
+3,letters_kw,5,7,False,cloud,letter question,-0.2403,1.13
+4,letters_kw,2,2,True,cloud,letter question,-0.3525,1.33
+5,letters_kw,3,2,False,cloud,letter question,-0.1293,1.02
+6,letters_para,2,1,False,local,confident,-0.1271,1.23
+7,letters_para,3,3,True,cloud,low confidence,-0.3633,1.23
+8,letters_para,4,2,False,local,confident,-0.1585,1.33
+9,letters_para,4,3,False,cloud,low confidence,-0.3836,1.23
+10,letters_para,3,3,True,cloud,low confidence,-0.2635,1.23
+11,letters_para,5,6,False,cloud,low confidence,-0.3471,0.92
+12,letters_para,4,4,True,local,confident,-0.1199,1.29
+13,letters_para,desserts,desserts,True,local,confident,-0.0742,1.28
+14,letters_para,reward,rewrad,False,cloud,low confidence,-0.2986,1.32
+15,letters_para,2,2,True,cloud,low confidence,-0.2282,1.33
+16,fact,Buenos Aires,Buenos Aires.,True,local,confident,-0.0666,1.74
+17,fact,Warsaw,Warsaw.,True,local,confident,-0.0466,1.23
+18,fact,Einstein,Albert Einstein.,True,local,confident,-0.0609,1.64
+19,fact,K,K,True,local,confident,-0.1941,1.13
+20,fact,1945,1945.,True,local,confident,-0.067,1.66
+21,fact,212,212°F,True,cloud,low confidence,-0.2599,1.62
+22,math_easy,1600,1600,True,local,confident,-0.0046,1.23
+23,math_easy,1024,1024,True,local,confident,-0.0092,1.33
+24,math_easy,60,60,True,local,confident,-0.0038,1.13
+25,math_hard,1786,1806,False,cloud,low confidence,-0.4796,1.33
+26,math_hard,3664,3664,True,local,confident,-0.0672,1.23
+27,logic,19,23,False,cloud,low confidence,-0.3351,1.13
+28,logic,97,83,False,cloud,low confidence,-1.0458,1.13
+29,logic,211,211,True,local,confident,-0.0409,1.13
+30,fact,6,6,True,local,confident,-0.1879,1.23
