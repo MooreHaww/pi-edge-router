@@ -1,0 +1,20 @@
+# Python
+__pycache__/
+*.pyc
+.venv/
+venv/
+
+# Secrets
+.env
+*.key
+
+# Model files (too big for git)
+*.gguf
+
+# Logs and results
+*.log
+
+# Editor / OS
+.vscode/
+.DS_Store
+Thumbs.db
