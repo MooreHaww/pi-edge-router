@@ -69,7 +69,7 @@ def ask_cloud(prompt):
     if not key or os.environ.get("ALLOW_CLOUD") != "1":
         raise SystemExit("Cloud is off. Set MODEL_API_KEY and ALLOW_CLOUD=1 in this window first.")
     body = {"model": router.CLOUD_MODEL, "input": prompt, "max_output_tokens": 3000,
-            "reasoning": {"effort": router.CLOUD_EFFORT}}
+            "reasoning": {"effort": os.environ.get("BENCH_EFFORT", router.CLOUD_EFFORT)}}
     start = time.time()
     r = requests.post(router.CLOUD_URL, json=body,
                       headers={"Authorization": "Bearer " + key}, timeout=600)
@@ -126,7 +126,7 @@ def main():
     ask = ask_pi if backend == "pi" else ask_cloud
     tasks = load_tasks(path)
     stem = os.path.splitext(os.path.basename(path))[0]
-    out_path = f"results/coding_{backend}_{stem}.csv"
+    out_path = f"results/coding_{backend if backend == 'pi' else 'cloud_' + os.environ.get('BENCH_EFFORT', router.CLOUD_EFFORT)}_{stem}.csv"
     rows = []
     for task in tasks:
         print(f"{task['id']} ...", end=" ", flush=True)
