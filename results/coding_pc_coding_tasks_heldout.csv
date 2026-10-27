@@ -1,0 +1,109 @@
+id,passed,tests_passed,tests_total,seconds,in_tokens,out_tokens,cost_usd,error,first_failure,code
+h01_roman_to_int,True,7,7,4.0,76,121,0.0,,,"def roman_to_int(s):
+    roman = {'I': 1, 'V': 5, 'X': 10, 'L': 50, 'C': 100, 'D': 500, 'M': 1000}
+    total = 0
+    prev_value = 0
+    for char in reversed(s):
+        value = roman[char]
+        if value < prev_value:
+            total -= value
+        else:
+            total += value
+        prev_value = value
+    return total"
+h02_flatten,True,6,6,2.8,65,46,0.0,,,"def flatten(nested):
+    result = []
+    for item in nested:
+        if isinstance(item, list):
+            result.extend(flatten(item))
+        else:
+            result.append(item)
+    return result"
+h03_rotate_matrix,True,4,4,2.8,63,49,0.0,,,"def rotate_matrix(m):
+    if not m:
+        return []
+    n = len(m)
+    return [[m[n - j - 1][i] for j in range(n)] for i in range(n)]"
+h04_group_anagrams,False,3,4,3.2,78,72,0.0,,"input=[['eat', 'tea', 'tan', 'ate', 'nat', 'bat']] expected=[['ate', 'eat', 'tea'], ['bat'], ['nat', 'tan']] got=[['bat'], ['ate', 'eat', 'tea'], ['nat', 'tan']]","def group_anagrams(words):
+    from collections import defaultdict
+
+    groups = defaultdict(list)
+    for word in words:
+        sorted_word = ''.join(sorted(word))
+        groups[sorted_word].append(word)
+    
+    result = []
+    for key in sorted(groups.keys()):
+        result.append(sorted(groups[key]))
+    
+    return result"
+h05_longest_common_prefix,True,6,6,3.1,61,64,0.0,,,"def longest_common_prefix(strs):
+    if not strs:
+        return """"
+    shortest = min(strs, key=len)
+    for i, char in enumerate(shortest):
+        for word in strs:
+            if word[i] != char:
+                return shortest[:i]
+    return shortest"
+h06_is_valid_ipv4,True,12,12,3.5,91,91,0.0,,,"def is_valid_ipv4(s):
+    parts = s.split('.')
+    if len(parts) != 4:
+        return False
+    for part in parts:
+        if not part.isdigit():
+            return False
+        if len(part) > 1 and part[0] == '0':
+            return False
+        if not 0 <= int(part) <= 255:
+            return False
+    return True"
+h07_median_bug,True,5,5,3.3,81,75,0.0,,,"def median(nums):
+    """"""Return the median of a non-empty list of numbers.""""""
+    s = sorted(nums)
+    mid = len(s) // 2
+    if len(s) % 2 == 0:
+        return (s[mid - 1] + s[mid]) / 2
+    else:
+        return s[mid]"
+h08_chunk_bug,True,5,5,2.8,86,49,0.0,,,"def chunk(items, size):
+    """"""Split items into lists of length size. The last list may be shorter.""""""
+    return [items[i:i + size] for i in range(0, len(items), size)]"
+h09_slugify_extend,True,7,7,4.0,126,124,0.0,,,"import re
+
+def slugify(title):
+    """"""Turn a title into a URL slug.""""""
+    # Lowercase the text
+    title = title.lower()
+    # Remove all characters except letters, digits, spaces, and hyphens
+    title = re.sub(r'[^a-z0-9\s-]', '', title)
+    # Replace runs of spaces and hyphens with a single hyphen
+    title = re.sub(r'[\s-]+', '-', title)
+    # Remove leading and trailing hyphens
+    title = title.strip('-')
+    return title"
+h10_is_sorted_bug,True,7,7,3.3,115,79,0.0,,,"def is_sorted(nums, reverse=False):
+    """"""True if nums is sorted ascending (or descending if reverse=True).
+    Equal neighbours are allowed.""""""
+    for a, b in zip(nums, nums[1:]):
+        if reverse:
+            if a < b:
+                return False
+        else:
+            if a > b:
+                return False
+    return True"
+h11_fib_speed,True,5,5,3.4,115,85,0.0,,,"def fib(n):
+    """"""Return the n-th Fibonacci number, with fib(0) = 0 and fib(1) = 1.""""""
+    if n < 2:
+        return n
+    a, b = 0, 1
+    for _ in range(2, n + 1):
+        a, b = b, a + b
+    return b"
+h12_average_extend,True,7,7,3.2,98,72,0.0,,,"def average(nums):
+    """"""Return the mean of a list of numbers, ignoring None values. Returns None for empty lists or lists with only None.""""""
+    filtered = [num for num in nums if num is not None]
+    if not filtered:
+        return None
+    return round(sum(filtered) / len(filtered), 2)"

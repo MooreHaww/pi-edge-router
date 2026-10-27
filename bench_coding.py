@@ -12,6 +12,8 @@ import requests
 
 import router  # reuse LOCAL_URL and the cloud settings
 
+PC_URL = "http://localhost:8081/v1/chat/completions"
+
 BLOCKED = ["import os", "from os", "import sys", "from sys", "subprocess", "shutil",
            "socket", "open(", "eval(", "exec(", "__import__", "pathlib",
            "requests", "urllib"]
@@ -57,6 +59,20 @@ def ask_pi(prompt):
             "max_tokens": 500, "temperature": 0}
     start = time.time()
     r = requests.post(router.LOCAL_URL, json=body, timeout=600).json()
+    return {"text": r["choices"][0]["message"]["content"],
+            "seconds": time.time() - start,
+            "in_tokens": r["usage"]["prompt_tokens"],
+            "out_tokens": r["usage"]["completion_tokens"],
+            "cost": 0.0}
+
+
+def ask_pc(prompt):
+    # enable_thinking off so Qwen3 does not spend tokens on a thinking phase
+    body = {"messages": [{"role": "user", "content": prompt}],
+            "max_tokens": 500, "temperature": 0,
+            "chat_template_kwargs": {"enable_thinking": False}}
+    start = time.time()
+    r = requests.post(PC_URL, json=body, timeout=600).json()
     return {"text": r["choices"][0]["message"]["content"],
             "seconds": time.time() - start,
             "in_tokens": r["usage"]["prompt_tokens"],
@@ -121,12 +137,12 @@ def run_tests(code, task):
 def main():
     backend = sys.argv[1] if len(sys.argv) > 1 else "pi"
     path = sys.argv[2] if len(sys.argv) > 2 else "data/coding_tasks_dev.py"
-    if backend not in ("pi", "cloud"):
-        raise SystemExit('Usage: python bench_coding.py [pi|cloud] [tasks_file]')
-    ask = ask_pi if backend == "pi" else ask_cloud
+    if backend not in ("pi", "pc", "cloud"):
+        raise SystemExit('Usage: python bench_coding.py [pi|pc|cloud] [tasks_file]')
+    ask = {"pi": ask_pi, "pc": ask_pc, "cloud": ask_cloud}[backend]
     tasks = load_tasks(path)
     stem = os.path.splitext(os.path.basename(path))[0]
-    out_path = f"results/coding_{backend if backend == 'pi' else 'cloud_' + os.environ.get('BENCH_EFFORT', router.CLOUD_EFFORT)}_{stem}.csv"
+    out_path = f"results/coding_{backend if backend in ('pi', 'pc') else 'cloud_' + os.environ.get('BENCH_EFFORT', router.CLOUD_EFFORT)}_{stem}.csv"
     rows = []
     for task in tasks:
         print(f"{task['id']} ...", end=" ", flush=True)

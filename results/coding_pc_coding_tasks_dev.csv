@@ -1,0 +1,55 @@
+id,passed,tests_passed,tests_total,seconds,in_tokens,out_tokens,cost_usd,error,first_failure,code
+t01_is_palindrome,True,8,8,2.7,55,36,0.0,,,"def is_palindrome(s):
+    cleaned = ''.join(c.lower() for c in s if c.isalnum())
+    return cleaned == cleaned[::-1]"
+t02_fizzbuzz,True,4,4,3.6,83,97,0.0,,,"def fizzbuzz(n):
+    result = []
+    for i in range(1, n + 1):
+        if i % 3 == 0 and i % 5 == 0:
+            result.append(""FizzBuzz"")
+        elif i % 3 == 0:
+            result.append(""Fizz"")
+        elif i % 5 == 0:
+            result.append(""Buzz"")
+        else:
+            result.append(str(i))
+    return result"
+t03_second_largest,True,7,7,2.7,52,44,0.0,,,"def second_largest(nums):
+    distinct = list(set(nums))
+    if len(distinct) < 2:
+        return None
+    distinct.sort(reverse=True)
+    return distinct[1]"
+t04_count_words,True,6,6,3.1,74,67,0.0,,,"import re
+
+def count_words(text):
+    words = re.findall(r'[a-zA-Z]+', text)
+    counts = {}
+    for word in words:
+        lower_word = word.lower()
+        counts[lower_word] = counts.get(lower_word, 0) + 1
+    return counts"
+t05_merge_intervals,True,5,5,3.5,79,90,0.0,,,"def merge_intervals(intervals):
+    if not intervals:
+        return []
+    intervals.sort()
+    merged = [intervals[0]]
+    for current in intervals[1:]:
+        last = merged[-1]
+        if current[0] <= last[1]:
+            merged[-1] = [last[0], max(last[1], current[1])]
+        else:
+            merged.append(current)
+    return merged"
+t06_valid_parentheses,True,8,8,3.3,63,81,0.0,,,"def is_valid_parentheses(s):
+    stack = []
+    mapping = {"")"": ""("", ""]"": ""["", ""}"": ""{""}
+    for char in s:
+        if char in mapping:
+            if stack and stack[-1] == mapping[char]:
+                stack.pop()
+            else:
+                return False
+        else:
+            stack.append(char)
+    return not stack"

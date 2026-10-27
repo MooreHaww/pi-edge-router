@@ -1,0 +1,80 @@
+id,passed,tests_passed,tests_total,seconds,in_tokens,out_tokens,cost_usd,error,first_failure,code
+t07_cart_total_bug,True,5,5,3.5,127,87,0.0,,,"def cart_total(items, discount_pct=0):
+    """"""items is a list of (name, unit_price, qty).
+    Return the total after the percentage discount, rounded to 2 decimals.""""""
+    total = 0
+    for name, price, qty in items:
+        total += price * qty
+    return round(total * (1 - discount_pct / 100), 2)"
+t08_paginate_bug,True,6,6,3.2,113,70,0.0,,,"def paginate(items, page, per_page):
+    """"""Return the items on the given page. Pages start at 1.
+    Return an empty list if the page is past the end.""""""
+    start = (page - 1) * per_page
+    end = start + per_page
+    return items[start:end]"
+t09_parse_duration_extend,True,6,6,5.1,194,193,0.0,,,"def parse_duration(text):
+    """"""Convert strings like '1h30m' to total seconds (an int).
+    Supports the units d (days), h (hours), m (minutes), and s (seconds).""""""
+    total = 0
+    number = """"
+    for ch in text:
+        if ch.isdigit():
+            number += ch
+        elif ch == ""d"":
+            total += int(number) * 86400
+            number = """"
+        elif ch == ""h"":
+            total += int(number) * 3600
+            number = """"
+        elif ch == ""m"":
+            total += int(number) * 60
+            number = """"
+        elif ch == ""s"":
+            total += int(number)
+            number = """"
+        else:
+            raise ValueError(""bad unit: "" + ch)
+    if not text:
+        return 0
+    return total"
+t10_wrap_text_bug,True,6,6,4.0,160,121,0.0,,,"def wrap_text(text, width):
+    """"""Greedy word wrap. Return a list of lines, each at most `width`
+    characters long. A single word longer than width stays on its own line.""""""
+    lines = []
+    current = """"
+    for word in text.split():
+        if len(current) + len(word) + 1 <= width:
+            current = current + "" "" + word if current else word
+        else:
+            if current:
+                lines.append(current)
+            current = word
+    if current:
+        lines.append(current)
+    return lines"
+t11_top_words_extend,True,7,7,4.0,179,121,0.0,,,"def top_words(text, n, stop_words=None):
+    """"""Return the n most common words in text.""""""
+    counts = {}
+    for word in text.lower().split():
+        word = word.strip("".,!?;:"")
+        if not word:
+            continue
+        if stop_words and word in stop_words:
+            continue
+        counts[word] = counts.get(word, 0) + 1
+    ranked = sorted(counts.items(), key=lambda kv: (-kv[1], kv[0]))
+    return [w for w, c in ranked[:n]]"
+t12_apply_transactions_bug,True,5,5,4.0,159,125,0.0,,,"def apply_transactions(balance, transactions):
+    """"""Apply (kind, amount) pairs in order. kind is 'deposit' or 'withdraw'.
+    A withdrawal larger than the current balance is rejected (the balance
+    stays unchanged). Return a list [final_balance, rejected_count].""""""
+    rejected_count = 0
+    for kind, amount in transactions:
+        if kind == ""deposit"":
+            balance += amount
+        elif kind == ""withdraw"":
+            if amount > balance:
+                rejected_count += 1
+            else:
+                balance -= amount
+    return [balance, rejected_count]"

@@ -1,4 +1,4 @@
-"""Simulate Pi-first routing on coding tasks using saved benchmark CSVs.
+"""Simulate tiered routing on coding tasks using saved benchmark CSVs.
 
 Reads only the CSV files written by bench_coding.py. Makes no network or API calls.
 """
@@ -7,8 +7,10 @@ from pathlib import Path
 
 RESULTS = Path("results")
 DEV_PI = ["coding_pi_coding_tasks_dev.csv", "coding_pi_coding_tasks_dev2.csv"]
+DEV_PC = ["coding_pc_coding_tasks_dev.csv", "coding_pc_coding_tasks_dev2.csv"]
 DEV_CLOUD = ["coding_cloud_high_coding_tasks_dev.csv", "coding_cloud_high_coding_tasks_dev2.csv"]
 HELDOUT_PI = ["coding_pi_coding_tasks_heldout.csv"]
+HELDOUT_PC = ["coding_pc_coding_tasks_heldout.csv"]
 HELDOUT_CLOUD = ["coding_cloud_high_coding_tasks_heldout.csv"]
 TOKEN_CAP = 3000
 
@@ -23,74 +25,90 @@ def load(files):
 
 
 def passed(row):
-    return row["passed"].strip() == "True"
+    return row is not None and row["passed"].strip() == "True"
 
 
-def report(title, pi, cloud, note):
+def simulate(ids, local_tiers, cloud, use_cloud):
+    """Run each task through the local tiers in order, then the cloud if all of them failed.
+
+    A task is solved if any tier that handled it passed. Cost is cloud cost_usd only.
+    Seconds add up for every tier that actually ran on that task.
+    """
+    solved, cost, seconds = 0, 0.0, 0.0
+    escalated = []
+    for i in ids:
+        done = False
+        reason = ""
+        for tier in local_tiers:
+            row = tier.get(i)
+            if row is None:
+                reason = "(no local result)"
+                continue
+            seconds += float(row["seconds"])
+            if passed(row):
+                done = True
+                break
+            reason = row["first_failure"] or row["error"] or "(no reason recorded)"
+        if not done and use_cloud:
+            row = cloud.get(i)
+            if row is not None:
+                seconds += float(row["seconds"])
+                cost += float(row["cost_usd"])
+            done = passed(row)
+            escalated.append((i, reason, row))
+        solved += done
+    return solved, cost, seconds, escalated
+
+
+def report(title, pi, pc, cloud, note):
     print(f"=== {title} ===")
     ids = sorted(pi)
-    missing = [i for i in ids if i not in cloud]
-    if missing:
-        print("Warning: no cloud result for", ", ".join(missing), "- counted as not solved by cloud.")
+    for name, tier in (("PC", pc), ("cloud", cloud)):
+        missing = [i for i in ids if i not in tier]
+        if missing:
+            print(f"Warning: no {name} result for", ", ".join(missing), "- counted as not solved there.")
 
-    def cloud_solved(i):
-        return i in cloud and passed(cloud[i])
-
-    def cloud_cost(i):
-        return float(cloud[i]["cost_usd"]) if i in cloud else 0.0
-
-    def cloud_seconds(i):
-        return float(cloud[i]["seconds"]) if i in cloud else 0.0
-
-    total = len(ids)
-    pi_seconds = sum(float(pi[i]["seconds"]) for i in ids)
-    escalated = [i for i in ids if not passed(pi[i])]
-
-    strategies = [
-        ("Always cloud",
-         sum(cloud_solved(i) for i in ids),
-         sum(cloud_cost(i) for i in ids),
-         sum(cloud_seconds(i) for i in ids)),
-        ("Pi only",
-         sum(passed(pi[i]) for i in ids),
-         0.0,
-         pi_seconds),
-        ("Router",
-         sum(passed(pi[i]) for i in ids) + sum(cloud_solved(i) for i in escalated),
-         sum(cloud_cost(i) for i in escalated),
-         pi_seconds + sum(cloud_seconds(i) for i in escalated)),
+    rows = [
+        ("Always cloud", [], True),
+        ("Pi only", [pi], False),
+        ("PC only", [pc], False),
+        ("Pi -> cloud", [pi], True),
+        ("PC -> cloud", [pc], True),
+        ("Pi -> PC -> cloud", [pi, pc], True),
     ]
+    results = [(name, *simulate(ids, tiers, cloud, use_cloud)) for name, tiers, use_cloud in rows]
+    total = len(ids)
+    cloud_total = results[0][2]
 
-    print(f"{'Strategy':<14}{'Solved':>10}{'Cost USD':>12}{'Seconds':>10}")
-    for name, solved, cost, seconds in strategies:
-        print(f"{name:<14}{f'{solved}/{total}':>10}{cost:>12.6f}{seconds:>10.1f}")
+    print(f"{'Strategy':<20}{'Solved':>8}{'Cost USD':>12}{'Seconds':>10}{'Saving':>9}")
+    for (name, solved, cost, seconds, _), (_, tiers, _) in zip(results, rows):
+        is_router = bool(tiers) and name.endswith("cloud")
+        saving = f"{(cloud_total - cost) / cloud_total * 100:.1f}%" if is_router and cloud_total > 0 else ""
+        print(f"{name:<20}{f'{solved}/{total}':>8}{cost:>12.6f}{seconds:>10.1f}{saving:>9}")
 
-    cloud_total = strategies[0][2]
-    router_total = strategies[2][2]
-    if cloud_total > 0:
-        saving = (cloud_total - router_total) / cloud_total * 100
-        print(f"Router cost saving vs always-cloud: {saving:.1f}%")
-
-    print(f"Escalated to cloud ({len(escalated)} of {total}):")
-    for i in escalated:
-        reason = pi[i]["first_failure"] or pi[i]["error"] or "(no reason recorded)"
-        outcome = "cloud passed" if cloud_solved(i) else "cloud failed"
-        if i in cloud and int(cloud[i]["out_tokens"] or 0) >= TOKEN_CAP:
-            outcome += ", hit the token cap"
-        print(f"  {i}: {reason}  -> {outcome}")
+    for name, _, _, _, escalated in results[3:]:
+        print(f"{name}: {len(escalated)} of {total} reached the cloud")
+        for i, reason, row in escalated:
+            if row is None:
+                outcome = "no cloud result"
+            else:
+                outcome = "cloud passed" if passed(row) else "cloud failed"
+                if int(row["out_tokens"] or 0) >= TOKEN_CAP:
+                    outcome += ", hit the token cap"
+            print(f"  {i}: {reason}  -> {outcome}")
 
     print(f"Note: {note}\n")
 
 
 def main():
-    dev_pi, dev_cloud = load(DEV_PI), load(DEV_CLOUD)
-    held_pi, held_cloud = load(HELDOUT_PI), load(HELDOUT_CLOUD)
+    dev = load(DEV_PI), load(DEV_PC), load(DEV_CLOUD)
+    held = load(HELDOUT_PI), load(HELDOUT_PC), load(HELDOUT_CLOUD)
 
-    report("Dev sets", dev_pi, dev_cloud,
+    report("Dev sets", *dev,
            "dev simulation; these tasks were seen while building the router.")
-    report("Held-out set", held_pi, held_cloud,
+    report("Held-out set", *held,
            "held-out tasks; this is the honest estimate.")
-    report("All combined", {**dev_pi, **held_pi}, {**dev_cloud, **held_cloud},
+    report("All combined", *({**d, **h} for d, h in zip(dev, held)),
            "dev and held-out together; mixes seen and unseen tasks.")
 
 
