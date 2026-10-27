@@ -6,8 +6,11 @@ import csv
 from pathlib import Path
 
 RESULTS = Path("results")
-PI_FILES = ["coding_pi_coding_tasks_dev.csv", "coding_pi_coding_tasks_dev2.csv"]
-CLOUD_FILES = ["coding_cloud_high_coding_tasks_dev.csv", "coding_cloud_high_coding_tasks_dev2.csv"]
+DEV_PI = ["coding_pi_coding_tasks_dev.csv", "coding_pi_coding_tasks_dev2.csv"]
+DEV_CLOUD = ["coding_cloud_high_coding_tasks_dev.csv", "coding_cloud_high_coding_tasks_dev2.csv"]
+HELDOUT_PI = ["coding_pi_coding_tasks_heldout.csv"]
+HELDOUT_CLOUD = ["coding_cloud_high_coding_tasks_heldout.csv"]
+TOKEN_CAP = 3000
 
 
 def load(files):
@@ -23,9 +26,8 @@ def passed(row):
     return row["passed"].strip() == "True"
 
 
-def main():
-    pi = load(PI_FILES)
-    cloud = load(CLOUD_FILES)
+def report(title, pi, cloud, note):
+    print(f"=== {title} ===")
     ids = sorted(pi)
     missing = [i for i in ids if i not in cloud]
     if missing:
@@ -63,19 +65,33 @@ def main():
     for name, solved, cost, seconds in strategies:
         print(f"{name:<14}{f'{solved}/{total}':>10}{cost:>12.6f}{seconds:>10.1f}")
 
-    print(f"\nEscalated to cloud ({len(escalated)} of {total}):")
-    for i in escalated:
-        reason = pi[i]["first_failure"] or pi[i]["error"] or "(no reason recorded)"
-        outcome = "cloud passed" if cloud_solved(i) else "cloud failed"
-        print(f"  {i}: {reason}  -> {outcome}")
-
     cloud_total = strategies[0][2]
     router_total = strategies[2][2]
     if cloud_total > 0:
         saving = (cloud_total - router_total) / cloud_total * 100
-        print(f"\nRouter cost saving vs always-cloud: {saving:.1f}%")
+        print(f"Router cost saving vs always-cloud: {saving:.1f}%")
 
-    print("Note: this is a simulation on the dev sets only, using saved results, not a held-out test.")
+    print(f"Escalated to cloud ({len(escalated)} of {total}):")
+    for i in escalated:
+        reason = pi[i]["first_failure"] or pi[i]["error"] or "(no reason recorded)"
+        outcome = "cloud passed" if cloud_solved(i) else "cloud failed"
+        if i in cloud and int(cloud[i]["out_tokens"] or 0) >= TOKEN_CAP:
+            outcome += ", hit the token cap"
+        print(f"  {i}: {reason}  -> {outcome}")
+
+    print(f"Note: {note}\n")
+
+
+def main():
+    dev_pi, dev_cloud = load(DEV_PI), load(DEV_CLOUD)
+    held_pi, held_cloud = load(HELDOUT_PI), load(HELDOUT_CLOUD)
+
+    report("Dev sets", dev_pi, dev_cloud,
+           "dev simulation; these tasks were seen while building the router.")
+    report("Held-out set", held_pi, held_cloud,
+           "held-out tasks; this is the honest estimate.")
+    report("All combined", {**dev_pi, **held_pi}, {**dev_cloud, **held_cloud},
+           "dev and held-out together; mixes seen and unseen tasks.")
 
 
 if __name__ == "__main__":
