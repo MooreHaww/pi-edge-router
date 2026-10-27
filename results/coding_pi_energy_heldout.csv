@@ -1,0 +1,122 @@
+id,passed,tests_passed,tests_total,seconds,in_tokens,out_tokens,cost_usd,error,first_failure,code
+h01_roman_to_int,True,7,7,36.3,99,198,0.0,,,"def roman_to_int(s):
+    """"""
+    Converts a Roman numeral string to an integer.
+
+    Args:
+        s (str): A string of Roman numerals.
+
+    Returns:
+        int: The integer equivalent of the Roman numeral string.
+
+    Raises:
+        ValueError: If the input string contains invalid Roman numerals.
+    """"""
+    roman_numerals = {
+        'I': 1, 'V': 5, 'X': 10, 'L': 50, 'C': 100, 'D': 500, 'M': 1000
+    }
+
+    result = 0
+    for i in range(len(s)):
+        if i > 0 and roman_numerals[s[i]] > roman_numerals[s[i - 1]]:
+            result += roman_numerals[s[i]] - 2 * roman_numerals[s[i - 1]]
+        else:
+            result += roman_numerals[s[i]]
+
+    return result"
+h02_flatten,True,6,6,9.2,88,50,0.0,,,"def flatten(nested):
+    flat_list = []
+    for item in nested:
+        if isinstance(item, list):
+            flat_list.extend(flatten(item))
+        else:
+            flat_list.append(item)
+    return flat_list"
+h03_rotate_matrix,True,4,4,17.6,85,95,0.0,,,"def rotate_matrix(m):
+    """"""
+    Rotate a square matrix 90 degrees clockwise.
+
+    Args:
+        m (list): A square matrix (a list of equal-length lists).
+
+    Returns:
+        list: A new matrix rotated 90 degrees clockwise.
+    """"""
+    if not m or not all(len(row) == len(m) for row in m):
+        return []
+
+    return [list(reversed(i)) for i in zip(*m)]"
+h04_group_anagrams,False,3,4,15.6,101,83,0.0,,"input=[['eat', 'tea', 'tan', 'ate', 'nat', 'bat']] expected=[['ate', 'eat', 'tea'], ['bat'], ['nat', 'tan']] got=[['bat'], ['ate', 'eat', 'tea'], ['nat', 'tan']]","from collections import defaultdict
+
+def group_anagrams(words):
+    if not words:
+        return []
+
+    anagrams = defaultdict(list)
+    for word in words:
+        sorted_word = """".join(sorted(word))
+        anagrams[sorted_word].append(word)
+
+    groups = sorted(anagrams.values(), key=lambda x: x[0])
+    return [sorted(group) for group in groups]"
+h05_longest_common_prefix,True,6,6,13.3,84,71,0.0,,,"def longest_common_prefix(strs):
+    if not strs:
+        return """"
+    
+    shortest_str = min(strs, key=len)
+    
+    for i, char in enumerate(shortest_str):
+        for other in strs:
+            if other[i] != char:
+                return shortest_str[:i]
+    
+    return shortest_str"
+h06_is_valid_ipv4,False,11,12,8.6,112,46,0.0,,input=['01.2.3.4'] expected=False got=True,"def is_valid_ipv4(s):
+    parts = s.split('.')
+    return len(parts) == 4 and all(part.isdigit() and 0 <= int(part) <= 255 for part in parts)"
+h07_median_bug,True,5,5,14.6,104,78,0.0,,,"def median(nums):
+    """"""Return the median of a non-empty list of numbers.""""""
+    s = sorted(nums)
+    n = len(s)
+    if n % 2 == 1:
+        return s[n // 2]
+    else:
+        return (s[n // 2 - 1] + s[n // 2]) / 2"
+h08_chunk_bug,True,5,5,9.2,109,49,0.0,,,"def chunk(items, size):
+    """"""Split items into lists of length size. The last list may be shorter.""""""
+    return [items[i:i + size] for i in range(0, len(items), size)]"
+h09_slugify_extend,False,3,7,14.4,149,76,0.0,,input=['Hello World'] expected=hello-world got=hello world,"def slugify(title):
+    """"""Turn a title into a URL slug.""""""
+    title = ''.join(c for c in title if c.isalnum() or c.isspace() or c == '-')
+    title = title.lower()
+    while '--' in title:
+        title = title.replace('--', '-')
+    title = title.strip('-')
+    return title"
+h10_is_sorted_bug,False,3,7,15.0,138,79,0.0,,"input=[[1, 2, 2, 3]] expected=True got=False","def is_sorted(nums, reverse=False):
+    """"""True if nums is sorted ascending (or descending if reverse=True).
+    Equal neighbours are allowed.""""""
+    for a, b in zip(nums, nums[1:]):
+        if reverse:
+            if a > b:
+                return False
+        else:
+            if a <= b:
+                return False
+    return True"
+h11_fib_speed,True,5,5,17.8,137,94,0.0,,,"def fib(n, memo={}):
+    """"""Return the n-th Fibonacci number, with fib(0) = 0 and fib(1) = 1.""""""
+    if n < 2:
+        return n
+    elif n in memo:
+        return memo[n]
+    else:
+        result = fib(n - 1, memo) + fib(n - 2, memo)
+        memo[n] = result
+        return result"
+h12_average_extend,True,7,7,12.9,121,68,0.0,,,"def average(nums):
+    """"""Return the mean of a list of numbers, ignoring None values and rounding to 2 decimal places.""""""
+    nums = [num for num in nums if num is not None]
+    if not nums:
+        return None
+    return round(sum(nums) / len(nums), 2)"
