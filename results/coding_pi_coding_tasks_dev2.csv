@@ -1,0 +1,87 @@
+id,passed,tests_passed,tests_total,seconds,in_tokens,out_tokens,cost_usd,error,first_failure,code
+t07_cart_total_bug,True,5,5,20.7,148,85,0.0,,,"def cart_total(items, discount_pct=0):
+    """"""items is a list of (name, unit_price, qty).
+    Return the total after the percentage discount, rounded to 2 decimals.""""""
+    total = 0
+    for name, price, qty in items:
+        total += price * qty
+    return round(total * (1 - discount_pct / 100), 2)"
+t08_paginate_bug,True,6,6,16.3,136,70,0.0,,,"def paginate(items, page, per_page):
+    """"""Return the items on the given page. Pages start at 1.
+    Return an empty list if the page is past the end.""""""
+    start = (page - 1) * per_page
+    end = start + per_page
+    return items[start:end]"
+t09_parse_duration_extend,True,6,6,55.0,215,253,0.0,,,"def parse_duration(text):
+    """"""Convert strings like '1d2h30m' to total seconds (an int).
+    Supports the units d, h, m, and s.""""""
+    total = 0
+    number = """"
+    for ch in text:
+        if ch.isdigit():
+            number += ch
+        elif ch in ""dhms"":
+            if number:
+                if ch == ""d"":
+                    total += int(number) * 24 * 60 * 60
+                elif ch == ""h"":
+                    total += int(number) * 60 * 60
+                elif ch == ""m"":
+                    total += int(number) * 60
+                elif ch == ""s"":
+                    total += int(number)
+            number = """"
+        else:
+            raise ValueError(""bad unit: "" + ch)
+    if number:
+        if ch == ""d"":
+            total += int(number) * 24 * 60 * 60
+        elif ch == ""h"":
+            total += int(number) * 60 * 60
+        elif ch == ""m"":
+            total += int(number) * 60
+        elif ch == ""s"":
+            total += int(number)
+    return total"
+t10_wrap_text_bug,True,6,6,28.4,183,121,0.0,,,"def wrap_text(text, width):
+    """"""Greedy word wrap. Return a list of lines, each at most `width`
+    characters long. A single word longer than width stays on its own line.""""""
+    lines = []
+    current = """"
+    for word in text.split():
+        if len(current) + len(word) + 1 <= width:
+            if current:
+                current += "" ""
+            current += word
+        else:
+            if current:
+                lines.append(current)
+            current = word
+    if current:
+        lines.append(current)
+    return lines"
+t11_top_words_extend,False,2,7,29.3,202,122,0.0,,"input=['b a b a c', 2] expected=['a', 'b'] got=EXC TypeError(""argument of type 'NoneType' is not iterable"")","def top_words(text, n, stop_words=None):
+    """"""Return the n most common words in text.""""""
+    counts = {}
+    for word in text.lower().split():
+        if word.strip("".,!?;:"").strip() != """":
+            word = word.strip("".,!?;:"")
+            if word not in stop_words:
+                counts[word] = counts.get(word, 0) + 1
+    ranked = sorted(counts.items(), key=lambda kv: (-kv[1], kv[0]))
+    return [w for w, c in ranked[:n]]"
+t12_apply_transactions_bug,True,5,5,31.0,182,135,0.0,,,"def apply_transactions(balance, transactions):
+    """"""Apply (kind, amount) pairs in order. kind is 'deposit' or 'withdraw'.
+    A withdrawal larger than the current balance is rejected (the balance
+    stays unchanged). Return a list [final_balance, rejected_count].""""""
+    final_balance = balance
+    rejected_count = 0
+    for kind, amount in transactions:
+        if kind == ""deposit"":
+            final_balance += amount
+        elif kind == ""withdraw"":
+            if amount > final_balance:
+                rejected_count += 1
+            else:
+                final_balance -= amount
+    return [final_balance, rejected_count]"
