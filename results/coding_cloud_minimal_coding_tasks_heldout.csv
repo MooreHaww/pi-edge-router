@@ -1,0 +1,112 @@
+id,passed,tests_passed,tests_total,seconds,in_tokens,out_tokens,cost_usd,error,first_failure,code
+h01_roman_to_int,True,7,7,2.1,71,173,0.000824,,,"def roman_to_int(s):
+    values = {'I': 1, 'V': 5, 'X': 10, 'L': 50, 'C': 100, 'D': 500, 'M': 1000}
+    total = 0
+    prev = 0
+    for c in reversed(s):
+        curr = values[c]
+        if curr < prev:
+            total -= curr
+        else:
+            total += curr
+        prev = curr
+    return total"
+h02_flatten,True,6,6,1.5,61,141,0.000675,,,"def flatten(nested):
+    result = []
+    def _flat(x):
+        if isinstance(x, list):
+            for i in x:
+                _flat(i)
+        else:
+            result.append(x)
+    _flat(nested)
+    return result"
+h03_rotate_matrix,True,4,4,3.2,58,209,0.000961,,,"def rotate_matrix(m):
+    if not m:
+        return []
+    return [list(row) for row in zip(*m[::-1])]"
+h04_group_anagrams,True,4,4,1.9,75,178,0.00085,,,"def group_anagrams(words):
+    if not words:
+        return []
+    groups = {}
+    for w in words:
+        key = tuple(sorted(w))
+        groups.setdefault(key, []).append(w)
+    result = [sorted(g) for g in groups.values()]
+    result.sort(key=lambda g: g[0])
+    return result"
+h05_longest_common_prefix,True,6,6,1.6,57,177,0.000824,,,"def longest_common_prefix(strs):
+    if not strs:
+        return """"
+    prefix = strs[0]
+    for s in strs[1:]:
+        while not s.startswith(prefix):
+            prefix = prefix[:-1]
+            if not prefix:
+                return """"
+    return prefix"
+h06_is_valid_ipv4,True,12,12,3.0,85,179,0.000867,,,"def is_valid_ipv4(s):
+    if not isinstance(s, str):
+        return False
+    parts = s.split('.')
+    if len(parts) != 4:
+        return False
+    for p in parts:
+        if len(p) == 0:
+            return False
+        if not p.isdigit():
+            return False
+        if len(p) > 1 and p[0] == '0':
+            return False
+        try:
+            n = int(p)
+        except ValueError:
+            return False
+        if n < 0 or n > 255:
+            return False
+    return True"
+h07_median_bug,True,5,5,1.5,76,222,0.001038,,,"def median(nums):
+    """"""Return the median of a non-empty list of numbers.""""""
+    s = sorted(nums)
+    n = len(s)
+    mid = n // 2
+    if n % 2 == 1:
+        return s[mid]
+    else:
+        return (s[mid - 1] + s[mid]) / 2"
+h08_chunk_bug,True,5,5,1.4,81,156,0.000764,,,"def chunk(items, size):
+    """"""Split items into lists of length size. The last list may be shorter.""""""
+    return [items[i:i + size] for i in range(0, len(items), size)]"
+h09_slugify_extend,True,7,7,3.4,118,451,0.002064,,,"import re
+
+def slugify(title):
+    """"""Turn a title into a URL slug.""""""
+    title = title.lower()
+    title = re.sub(r'[^a-z0-9 \-]', '', title)
+    title = re.sub(r'[\- ]+', '-', title)
+    return title.strip('-')"
+h10_is_sorted_bug,True,7,7,1.5,111,157,0.000806,,,"def is_sorted(nums, reverse=False):
+    """"""True if nums is sorted ascending (or descending if reverse=True).
+    Equal neighbours are allowed.""""""
+    for a, b in zip(nums, nums[1:]):
+        if reverse:
+            if a < b:
+                return False
+        else:
+            if a > b:
+                return False
+    return True"
+h11_fib_speed,True,5,5,2.2,108,202,0.000994,,,"def fib(n):
+    """"""Return the n-th Fibonacci number, with fib(0) = 0 and fib(1) = 1.""""""
+    if n < 2:
+        return n
+    a, b = 0, 1
+    for _ in range(1, n):
+        a, b = b, a + b
+    return b"
+h12_average_extend,True,7,7,1.8,93,197,0.000954,,,"def average(nums):
+    """"""Return the mean of a list of numbers.""""""
+    filtered = [n for n in nums if n is not None]
+    if not filtered:
+        return None
+    return round(sum(filtered) / len(filtered), 2)"

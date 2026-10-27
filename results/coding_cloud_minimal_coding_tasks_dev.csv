@@ -1,0 +1,59 @@
+id,passed,tests_passed,tests_total,seconds,in_tokens,out_tokens,cost_usd,error,first_failure,code
+t01_is_palindrome,True,8,8,2.2,51,101,0.000493,,,"def is_palindrome(s):
+    c = ''.join(ch.lower() for ch in s if ch.isalnum())
+    return c == c[::-1]"
+t02_fizzbuzz,True,4,4,2.3,83,135,0.000678,,,"def fizzbuzz(n):
+    result = []
+    for i in range(1, n + 1):
+        if i % 3 == 0 and i % 5 == 0:
+            result.append('FizzBuzz')
+        elif i % 3 == 0:
+            result.append('Fizz')
+        elif i % 5 == 0:
+            result.append('Buzz')
+        else:
+            result.append(str(i))
+    return result"
+t03_second_largest,True,7,7,1.8,48,161,0.000744,,,"def second_largest(nums):
+    uniq = set(nums)
+    if len(uniq) < 2:
+        return None
+    uniq.remove(max(uniq))
+    return max(uniq)"
+t04_count_words,True,6,6,2.4,69,206,0.000962,,,"def count_words(text):
+    counts = {}
+    cur = []
+    def flush():
+        if cur:
+            w = ''.join(cur).lower()
+            counts[w] = counts.get(w, 0) + 1
+            cur.clear()
+    for ch in text:
+        o = ord(ch)
+        if (65 <= o <= 90) or (97 <= o <= 122):
+            cur.append(ch)
+        else:
+            flush()
+    flush()
+    return counts"
+t05_merge_intervals,True,5,5,1.3,75,141,0.000693,,,"def merge_intervals(intervals):
+    if not intervals:
+        return []
+    intervals = sorted(intervals, key=lambda x: x[0])
+    merged = [list(intervals[0])]
+    for s, e in intervals[1:]:
+        if s <= merged[-1][1]:
+            merged[-1][1] = max(merged[-1][1], e)
+        else:
+            merged.append([s, e])
+    return merged"
+t06_valid_parentheses,True,8,8,1.2,58,116,0.000565,,,"def is_valid_parentheses(s):
+    stack = []
+    mapping = {')': '(', ']': '[', '}': '{'}
+    for c in s:
+        if c in mapping.values():
+            stack.append(c)
+        elif c in mapping:
+            if not stack or stack.pop() != mapping[c]:
+                return False
+    return not stack"
